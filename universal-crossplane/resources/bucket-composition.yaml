@@ -4,6 +4,7 @@ metadata:
   name: bucket
   annotations:
     argocd.argoproj.io/sync-wave: "3"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
   labels:
     crossplane.io/xrd: xbucketinstances.skip.kartverket.no
     provider: gcp
