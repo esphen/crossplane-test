@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: universal-crossplane
+spec:
+  destination:
+    name: ''
+    namespace: upbound-system
+    server: 'https://kubernetes.default.svc'
+  source:
+    path: universal-crossplane
+    repoURL: 'https://github.com/esphen/crossplane-test.git'
+    targetRevision: HEAD
+  sources: []
+  project: default
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
