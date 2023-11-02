@@ -1,0 +1,49 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+commonLabels:
+  app.kubernetes.io/part-of: argocd
+  app.kubernetes.io/managed-by: argocd
+
+resources:
+  - resources/provider-gcp.yaml
+  - resources/provider-terraform.yaml
+  - resources/workloadidentity-xrd.yaml
+  - resources/workloadidentity-composition.yaml
+  - resources/bucket-xrd.yaml
+  - resources/bucket-composition.yaml
+  - resources/bucket-access-xrd.yaml
+  - resources/bucket-access-composition.yaml
+  - resources/service-account-xrd.yaml
+  - resources/service-account-composition.yaml
+
+helmCharts:
+  - name: universal-crossplane
+    namespace: upbound-system
+    repo: https://charts.upbound.io/stable
+    releaseName: crossplane
+    valuesFile: values.yaml
+    # See https://github.com/upbound/universal-crossplane/releases
+    version: "1.12.1-up.1"
+    includeCRDs: true
+
+patches:
+  - target:
+      kind: Deployment
+      labelSelector: "app.kubernetes.io/component=bootstrapper"
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/securityContext
+        value:
+          seccompProfile:
+            type: RuntimeDefault
+
+  - target:
+      kind: Deployment
+      labelSelector: "app.kubernetes.io/component=xgql"
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/securityContext
+        value:
+          seccompProfile:
+            type: RuntimeDefault

@@ -1,0 +1,11 @@
+apiVersion: skip.kartverket.no/v1alpha1
+kind: BucketInstance
+metadata:
+  name: my-bucket
+spec:
+  parameters:
+    bucket:
+      name: dsa-test-bucket-123
+    serviceAccount: 
+      name: crossplane-test
+      displayName: Testing Crossplane Integration

@@ -1,0 +1,43 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xworkloadidentityinstances.skip.kartverket.no
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  group: skip.kartverket.no
+  names:
+    kind: XWorkloadIdentityInstance
+    plural: xworkloadidentityinstances
+  claimNames:
+    kind: WorkloadIdentityInstance
+    plural: workloadidentityinstances
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              parameters:
+                type: object
+                properties:
+                  gcpKubernetesProject:
+                    type: string
+                  gcpProject:
+                    type: string
+                  gcpServiceAccount:
+                    type: string
+                  serviceAccount:
+                    type: string
+                required:
+                - gcpKubernetesProject
+                - gcpProject
+                - gcpServiceAccount
+                - serviceAccount
+            required:
+            - parameters

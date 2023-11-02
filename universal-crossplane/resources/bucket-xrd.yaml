@@ -1,0 +1,49 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xbucketinstances.skip.kartverket.no
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  group: skip.kartverket.no
+  names:
+    kind: XBucketInstance
+    plural: xbucketinstances
+  claimNames:
+    kind: BucketInstance
+    plural: bucketinstances
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              parameters:
+                type: object
+                properties:
+                  serviceAccount:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      displayName:
+                        type: string
+                    required:
+                    - name
+                  bucket:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                    required:
+                    - name
+                required:
+                - serviceAccount
+                - bucket
+            required:
+            - parameters

@@ -1,0 +1,13 @@
+apiVersion: skip.kartverket.no/v1alpha1
+kind: BucketAccessInstance
+metadata:
+  name: my-bucket
+spec:
+  parameters:
+    accessFrom:
+      kubernetesServiceAccount: crossplane-test
+      gcpKubernetesProject: kubernetes-dev-94b9
+    accessTo:
+      bucketName: dsa-test-bucket-123
+      gcpServiceAccount: crossplane-test@dsa-dev-e32c.iam.gserviceaccount.com
+      gcpProject: dsa-dev-e32c

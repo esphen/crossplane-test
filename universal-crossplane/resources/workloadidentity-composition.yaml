@@ -1,0 +1,62 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: workloadidentity
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+  labels:
+    crossplane.io/xrd: xworkloadidentityinstances.skip.kartverket.no
+    provider: gcp
+spec:
+  writeConnectionSecretsToNamespace: upbound-system
+  compositeTypeRef:
+    apiVersion: skip.kartverket.no/v1alpha1
+    kind: XWorkloadIdentityInstance
+  resources:
+  - name: serviceaccountiam
+    base:
+      apiVersion: cloudplatform.gcp.upbound.io/v1beta1
+      kind: ServiceAccountIAMMember
+      spec:
+        forProvider:
+          member:
+          role: roles/iam.workloadIdentityUser
+          serviceAccountId:
+        providerConfigRef:
+          name: 
+    patches:
+    - type: CombineFromComposite
+      combine:
+        variables:
+        - fromFieldPath: spec.parameters.gcpKubernetesProject
+        - fromFieldPath: spec.claimRef.namespace
+        - fromFieldPath: spec.parameters.serviceAccount
+        strategy: string
+        string:
+          fmt: "serviceAccount:%s.svc.id.goog[%s/%s]"
+      toFieldPath: spec.forProvider.member
+      policy:
+        fromFieldPath: Required
+
+    - type: CombineFromComposite
+      combine:
+        variables:
+        - fromFieldPath: spec.parameters.gcpProject
+        - fromFieldPath: spec.parameters.gcpServiceAccount
+        strategy: string
+        string:
+          fmt: "projects/%s/serviceAccounts/%s"
+      toFieldPath: spec.forProvider.serviceAccountId
+      policy:
+        fromFieldPath: Required
+
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.claimRef.namespace
+      toFieldPath: spec.providerConfigRef.name
+      transforms:
+      - type: string
+        string:
+          type: Regexp
+          regexp:
+            match: '^(\w+)-.*'
+            group: 1

@@ -1,0 +1,71 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: bucket
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+  labels:
+    crossplane.io/xrd: xbucketinstances.skip.kartverket.no
+    provider: gcp
+spec:
+  writeConnectionSecretsToNamespace: upbound-system
+  compositeTypeRef:
+    apiVersion: skip.kartverket.no/v1alpha1
+    kind: XBucketInstance
+  resources:
+  - name: bucket
+    base:
+      apiVersion: storage.gcp.upbound.io/v1beta1
+      kind: Bucket
+      metadata: 
+        name:
+      spec:
+        forProvider:
+          location: europe-north1
+          storageClass: STANDARD
+        providerConfigRef:
+          name: 
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.bucket.name
+      toFieldPath: metadata.name
+    - type: PatchSet
+      patchSetName: providerConfig
+
+  - name: serviceaccount
+    base:
+      apiVersion: cloudplatform.gcp.upbound.io/v1beta1
+      kind: ServiceAccount
+      metadata:
+        name:
+      spec:
+        forProvider:
+          displayName: 
+        providerConfigRef:
+          name:
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.serviceAccount.displayName
+      toFieldPath: spec.forProvider.displayName
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.parameters.serviceAccount.name
+      toFieldPath: metadata.name
+    - type: ToCompositeFieldPath
+      fromFieldPath: status.atProvider.name
+      toFieldPath: status.serviceAccountName
+    - type: PatchSet
+      patchSetName: providerConfig
+
+  patchSets:
+  - name: providerConfig
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.claimRef.namespace
+      toFieldPath: spec.providerConfigRef.name
+      transforms:
+      - type: string
+        string:
+          type: Regexp
+          regexp:
+            match: '^(\w+)-.*'
+            group: 1

@@ -1,0 +1,56 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xbucketaccessinstances.skip.kartverket.no
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  group: skip.kartverket.no
+  names:
+    kind: XBucketAccessInstance
+    plural: xbucketaccessinstances
+  claimNames:
+    kind: BucketAccessInstance
+    plural: bucketaccessinstances
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              parameters:
+                type: object
+                properties:
+                  accessFrom:
+                    type: object
+                    properties:
+                      kubernetesServiceAccount:
+                        type: string
+                      gcpKubernetesProject:
+                        type: string
+                    required:
+                    - kubernetesServiceAccount
+                    - gcpKubernetesProject
+                  accessTo:
+                    type: object
+                    properties:
+                      bucketName:
+                        type: string
+                      gcpServiceAccount:
+                        type: string
+                      gcpProject:
+                        type: string
+                    required:
+                    - bucketName
+                    - gcpServiceAccount
+                    - gcpProject
+                required:
+                - accessFrom
+                - accessTo
+            required:
+            - parameters

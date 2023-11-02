@@ -1,0 +1,7 @@
+securityContextCrossplane:
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContextRBACManager:
+  seccompProfile:
+    type: RuntimeDefault
